@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Tracker</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+        }
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 300px;
+        }
+        input {
+            width: 80%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        #getPriceBtn { background-color: #007bff; color: white; }
+        #clearBtn { background-color: #6c757d; color: white; }
+        
+        #statusIndicator {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #666;
+        }
+        #priceDisplay {
+            margin-top: 10px;
+            font-size: 2rem;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h3>Asset Price Tracker</h3>
+    <input type="text" id="symbolInput" placeholder="Enter Symbol (BTC, AAPL)">
+    
+    <div class="btn-group">
+        <button id="getPriceBtn">Get Price</button>
+        <button id="clearBtn">Clear</button>
+    </div>
+
+    <div id="statusIndicator">Ready</div>
+    <div id="priceDisplay">$0.00</div>
+</div>
+
+<script>
+    const symbolInput = document.getElementById('symbolInput');
+    const getPriceBtn = document.getElementById('getPriceBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const statusIndicator = document.getElementById('statusIndicator');
+    const priceDisplay = document.getElementById('priceDisplay');
+
+    // MOCK API FUNCTION - Replace with your actual API call
+    async function fetchPrice(symbol) {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                if(symbol) {
+                    resolve((Math.random() * 50000).toFixed(2));
+                } else {
+                    reject("Invalid Symbol");
+                }
+            }, 1000); // Simulates network delay
+        });
+    }
+
+    // GET PRICE LOGIC
+    getPriceBtn.addEventListener('click', async () => {
+        const symbol = symbolInput.value.trim();
+        if (!symbol) {
+            statusIndicator.innerText = "Please enter a symbol";
+            statusIndicator.style.color = "red";
+            return;
+        }
+
+        // 1. Show Loading State
+        statusIndicator.innerText = "Fetching price...";
+        statusIndicator.style.color = "orange";
+        priceDisplay.innerText = "---";
+
+        try {
+            const price = await fetchPrice(symbol);
+            
+            // 2. Show Success State
+            priceDisplay.innerText = `$${price}`;
+            statusIndicator.innerText = "Price Received!";
+            statusIndicator.style.color = "green";
+        } catch (error) {
+            // 3. Show Error State
+            statusIndicator.innerText = "Error fetching price.";
+            statusIndicator.style.color = "red";
+            priceDisplay.innerText = "$0.00";
+        }
+    });
+
+    // CLEAR LOGIC
+    clearBtn.addEventListener('click', () => {
+        symbolInput.value = "";
+        priceDisplay.innerText = "$0.00";
+        statusIndicator.innerText = "Ready";
+        statusIndicator.style.color = "#666";
+    });
+</script>
+
+</body>
+</html>
