@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Scanner</title>
+    <style>
+        body {
+            background-color: #0a0a0a;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* The Scanner Display */
+        .scanner-screen {
+            position: relative;
+            width: 320px;
+            height: 200px;
+            background-color: #000;
+            border: 2px solid #00ff00;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+            overflow: hidden;
+            margin-bottom: 20px;
+            /* Subtle Grid Background */
+            background-image: 
+                linear-gradient(rgba(0, 255, 0, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 0, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* The Animated Scan Line */
+        #scanLine {
+            position: absolute;
+            width: 100%;
+            height: 5px;
+            background: #00ff00;
+            box-shadow: 0 0 20px #00ff00, 0 0 40px #00ff00;
+            top: 0;
+            z-index: 10;
+            animation: scanLoop 2.5s infinite ease-in-out;
+        }
+
+        @keyframes scanLoop {
+            0% { top: 0%; }
+            50% { top: 100%; }
+            100% { top: 0%; }
+        }
+
+        /* UI Controls */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 320px;
+        }
+
+        input {
+            padding: 12px;
+            background: #111;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            text-align: center;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            cursor: pointer;
+            font-family: inherit;
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            background: rgba(0, 255, 0, 0.1);
+        }
+
+        #result {
+            font-size: 2rem;
+            margin-top: 15px;
+            height: 40px;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        /* SUCCESS STATE: Color change for the line and border */
+        .success-line {
+            background: #00ffff !important;
+            box-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff !important;
+        }
+        
+        .success-border {
+            border-color: #00ffff !important;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4) !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="scanner-screen" id="screen">
+        <div id="scanLine"></div>
+    </div>
+
+    <div class="controls">
+        <input type="text" id="assetInput" placeholder="ENTER ASSET ID...">
+        <div class="btn-group">
+            <button id="scanBtn">Execute Scan</button>
+            <button id="clearBtn">Clear</button>
+        </div>
+    </div>
+
+    <div id="result">---</div>
+
+    <script>
+        const scanLine = document.getElementById('scanLine');
+        const screen = document.getElementById('screen');
+        const assetInput = document.getElementById('assetInput');
+        const resultDiv = document.getElementById('result');
+
+        // SCAN BUTTON
+        document.getElementById('scanBtn').addEventListener('click', () => {
+            const asset = assetInput.value.trim();
+            if(!asset) return;
+
+            // Start scanning phase
+            resultDiv.innerText = "LINKING...";
+            scanLine.style.animationDuration = "0.8s"; // Fast scan when active
+
+            // Simulate API logic
+            setTimeout(() => {
+                const mockPrice = (Math.random() * 999).toFixed(2);
+                
+                // INDICATOR: Successful capture
+                scanLine.classList.add('success-line');
+                screen.classList.add('success-border');
+                resultDiv.style.color = "#00ffff";
+                resultDiv.innerText = `$${mockPrice}`;
+                
+                scanLine.style.animationDuration = "4s"; // Slow down to "hover" once found
+            }, 2000);
+        });
+
+        // CLEAR BUTTON
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            assetInput.value = "";
+            resultDiv.innerText = "---";
+            resultDiv.style.color = "#00ff00";
+            
+            // Reset scan visuals
+            scanLine.classList.remove('success-line');
+            screen.classList.remove('success-border');
+            scanLine.style.animationDuration = "2.5s";
+        });
+    </script>
+</body>
+</html>
