@@ -1,0 +1,15 @@
+{
+  "short_name": "PriceScan",
+  "name": "Grocery Total Scanner",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#28a745",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2331/2331970.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
