@@ -1,15 +1,18 @@
 {
-  "short_name": "PriceScan",
   "name": "Grocery Total Scanner",
-  "start_url": ".",
+  "short_name": "PriceScan",
+  "description": "Auto-scan grocery prices using OCR",
+  "start_url": "./index.html",
   "display": "standalone",
-  "theme_color": "#28a745",
+  "orientation": "portrait",
   "background_color": "#ffffff",
+  "theme_color": "#28a745",
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/2331/2331970.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
