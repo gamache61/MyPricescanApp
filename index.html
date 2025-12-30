@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vertical Price Scanner</title>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: #000;
+            font-family: sans-serif;
+            overflow: hidden;
+        }
+
+        /* SCANNER AT TOP - Centered vertical layout */
+        #scanner-viewport {
+            position: relative;
+            width: 100%;
+            height: 60vh; /* Increased height for the scanner area */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+        }
+
+        /* FIX: Scanner box is half the width but twice as high */
+        #focus-area {
+            position: relative;
+            width: 40%;   /* Half the usual width */
+            height: 200px; /* Doubled height */
+            border: 3px solid #00ff00;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.7); /* Darkens everything outside the box */
+            z-index: 10;
+        }
+
+        video {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+            transform: scale(1.3); /* Zoomed in to help focus on small text */
+        }
+
+        /* UI Panel */
+        .interface {
+            flex-grow: 1;
+            background: #111;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            border-top: 2px solid #333;
+        }
+
+        #price-display {
+            font-size: 56px;
+            font-weight: bold;
+            color: #00ff00;
+            margin: 10px 0;
+        }
+
+        #clear-btn {
+            width: 90%;
+            max-width: 300px;
+            padding: 18px;
+            font-size: 20px;
+            font-weight: bold;
+            background: #ff3b30;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-top: auto;
+            margin-bottom: 20px;
+        }
+
+        .label { color: #888; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+
+    <div id="scanner-viewport">
+        <div id="focus-area">
+            <video id="video" autoplay playsinline></video>
+        </div>
+    </div>
+
+    <div class="interface">
+        <span class="label">Detected Price</span>
+        <div id="price-display">---</div>
+        <button id="clear-btn">Clear Result</button>
+    </div>
+
+    <canvas id="canvas" style="display:none;"></canvas>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const priceDisplay = document.getElementById('price-display');
+        const clearBtn = document.getElementById('clear-btn');
+
+        async function initCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } }
+                });
+                video.srcObject = stream;
+            } catch (err) {
+                alert("Camera access denied.");
+            }
+        }
+
+        async function performOCR() {
+            const context = canvas.getContext('2d');
+            
+            // Setting canvas to match the tall/narrow focus area
+            canvas.width = 200;
+            canvas.height = 400;
+
+            // Crop the center of the video feed to match the UI box
+            context.drawImage(video, 
+                video.videoWidth * 0.35, video.videoHeight * 0.25, // Start point (centered)
+                video.videoWidth * 0.3, video.videoHeight * 0.5,   // Crop dimensions (Narrow/Tall)
+                0, 0, canvas.width, canvas.height
+            );
+
+            Tesseract.recognize(canvas, 'eng', {
+                tessedit_char_whitelist: '0123456789.$',
+            }).then(({ data: { text } }) => {
+                const cleaned = text.replace(/[^0-9.$]/g, "").trim();
+                if (cleaned.length >= 2) {
+                    priceDisplay.innerText = cleaned;
+                }
+            });
+
+            setTimeout(performOCR, 1000); 
+        }
+
+        clearBtn.addEventListener('click', () => {
+            priceDisplay.innerText = "---";
+        });
+
+        initCamera().then(() => {
+            video.addEventListener('loadedmetadata', performOCR);
+        });
+    </script>
+</body>
+</html>
